@@ -66,18 +66,19 @@
     CXHandle *handle = [[CXHandle alloc] initWithType:CXHandleTypePhoneNumber value:telNum];
     CXStartCallAction *action = [[CXStartCallAction alloc]initWithCallUUID:self.currentUUID handle:handle];
     action.video = isVideo;
+    
     CXTransaction *transaction = [[CXTransaction alloc]init];
     [transaction addAction:action];
-    
+
     //提交给系统
     [self requestTransaction:transaction];
 #else
-    //原有逻辑
+    //原有逻辑、去电
 
 #endif
 }
 
-#pragma mark - 来电
+#pragma mark - 来电通知
 - (void)receiveCallWithTelNum:(NSString *)telNum{
 
 #ifdef Use_CallKit
@@ -106,10 +107,11 @@
             
         }else{
             
+            NSLog(@"error:%@",error.description);
         }
     }];
 #else
-    //原有逻辑
+    //原有逻辑、来电
     
 #endif
 }
@@ -123,13 +125,13 @@
     [transaction addAction:action];
     [self requestTransaction:transaction];
 #else
-   //原有逻辑
+   //原有逻辑、挂电话
     
 #endif
 }
 
 #pragma mark - 接电话
--(void)receiveCall{
+- (void)receiveCall{
     
 
 }
@@ -158,43 +160,42 @@
     
     [self.callController requestTransaction:transaction completion:^( NSError *_Nullable error){
         
-        if (error !=nil) {
+        if (error != nil) {
             
             NSLog(@"Error requesting transaction:\n%@", error.description);
         }else{
+            
             NSLog(@"Requested transaction successfully");
         }
     }];
 }
 
 #pragma mark - CXProviderDelegate
-- (void)providerDidReset:(CXProvider *)provider  {
+- (void)providerDidReset:(CXProvider *)provider {
     NSLog(@"CK: Provider did reset");
     NSLog(@"resetedUUID:%ld",provider.pendingTransactions.count);
 }
 
 #pragma mark 创建成功
 - (void)providerDidBegin:(CXProvider *)provider {
-    NSLog(@"CK: Provider did begin");
+    NSLog(@"CK: 创建成功");
 }
 
 #pragma mark 返回true 不执行系统通话界面 直接End
 - (BOOL)provider:(CXProvider *)provider executeTransaction:(CXTransaction *)transaction {
-    NSLog(@"CK: Provider execute transaction");
+    NSLog(@"CK: 操作成功");
     return NO;
 }
 
 #pragma mark 当拨打方成功发起一个通话后，会触发
 - (void)provider:(CXProvider *)provider performStartCallAction:(CXStartCallAction *)action {
-    NSLog(@"CK: Start Call Action");
+    NSLog(@"CK: 拨打电话");
     
     NSUUID *currentID = self.currentUUID;
     
     if ([[action.callUUID UUIDString] isEqualToString:[currentID UUIDString]]) {
         
-        //可以建立回调接收状态
-        
-        //原有逻辑
+        //原有逻辑、去电
         
         [action fulfill];
     } else {
@@ -204,7 +205,8 @@
 
 #pragma mark 当接听方成功接听一个电话时，会触发
 - (void)provider:(CXProvider *)provider performAnswerCallAction:(CXAnswerCallAction *)action {
-    NSLog(@"CK: Answer Call Action");
+    NSLog(@"CK: 接听电话");
+    
     //接听电话
     [self receiveCall];
     [action fulfill];
@@ -212,7 +214,8 @@
 
 #pragma mark 当接听方拒接电话或者双方结束通话时，会触发
 - (void)provider:(CXProvider *)provider performEndCallAction:(CXEndCallAction *)action {
-    NSLog(@"CK: End Call Action");
+    NSLog(@"CK: 结束通话");
+    
     NSUUID *currentID = self.currentUUID;
     if ([[action.callUUID UUIDString] isEqualToString:[currentID UUIDString]]) {
         //挂电话
@@ -225,52 +228,49 @@
 
 #pragma mark 当点击系统通话界面的Mute按钮时，会触发
 - (void)provider:(CXProvider *)provider performSetMutedCallAction:(CXSetMutedCallAction *)action {
-    NSLog(@"CallKit---- %@",action.muted?@"通话静音":@"通话取消静音");
+    NSLog(@"CK: %@",(action.muted)?@"通话静音":@"通话取消静音");
     [action fulfill];
 }
 
 #pragma mark 群组通话
 - (void)provider:(CXProvider *)provider performSetGroupCallAction:(CXSetGroupCallAction *)action {
-    NSLog(@"CK: Set Group Call Action");
+    NSLog(@"CK: 群组通话");
     [action fulfill];
 }
 
 #pragma mark 双音频功能
 - (void)provider:(CXProvider *)provider performPlayDTMFCallAction:(CXPlayDTMFCallAction *)action {
-    NSLog(@"CK: Play DTMF Call Action");
+    NSLog(@"CK: 双音频功能");
     [action fulfill];
 }
 
 #pragma mark 通话保留
 - (void)provider:(CXProvider *)provider performSetHeldCallAction:(CXSetHeldCallAction *)action {
-    NSLog(@"CK: Set Held Call Action");
+    NSLog(@"CK: %@",(action.onHold)?@"通话保留":(@"恢复通话"));
+    
     [action fulfill];
-    NSLog(@"CallKit----%@",(action.onHold)?@"通话保留":(@"恢复通话"));
+    
 }
 
-/// Called when an action was not performed in time and has been inherently failed. Depending on the action, this timeout may also force the call to end. An action that has already timed out should not be fulfilled or failed by the provider delegate
 #pragma mark 连接超时
 - (void)provider:(CXProvider *)provider timedOutPerformingAction:(CXAction *)action {
-    NSLog(@"CK: Provider Timed out");
+    NSLog(@"CK: 连接超时");
 }
 
-/// Called when the provider's audio session activation state changes.
 #pragma mark audio session 设置
 - (void)provider:(CXProvider *)provider didActivateAudioSession:(AVAudioSession *)audioSession {
-    //音频开始
-    
-    NSLog(@"CK: Audio session activated");
+    NSLog(@"CK: 音频开始");
 }
 
 #pragma mark 通话结束音频处理
 - (void)provider:(CXProvider *)provider didDeactivateAudioSession:(AVAudioSession *)audioSession {
-    NSLog(@"CK: Audio session deactivated");
+    NSLog(@"CK: 音频结束");
 }
 
 #pragma mark - CXCallObserverDelegate
 - (void)callObserver:(CXCallObserver *)callObserver callChanged:(CXCall *)call{
     
-    NSLog(@"CallKit\ncallObserver---%ld\ncall.isOnHold---%d\ncall.isOutgoing---%d\ncall.hasConnected---%d\ncall.hasEnded---%d",callObserver.calls.count,call.isOnHold,call.isOutgoing,call.hasConnected,call.hasEnded);
+    NSLog(@"CK: \ncallObserver---%ld\ncall.isOnHold---%d\ncall.isOutgoing---%d\ncall.hasConnected---%d\ncall.hasEnded---%d",callObserver.calls.count,call.isOnHold,call.isOutgoing,call.hasConnected,call.hasEnded);
     
     if (self.currentUUID){
         
@@ -345,52 +345,14 @@
         return;
     }
     
+    //在这里配置根据状态需要的操作
+    
     _phoneState = phoneState;
     
-    //呼入
-    if (phoneState == SHCallPhoneState_In) {
-        
-        self.callModel = [[SHCallModel alloc]init];
-        self.callModel.telNum = @"1234567890";
-        self.callModel.userName = @"abc";
-        
-        self.currentUUID = [NSUUID UUID];
-    }
-    
-    //通话中
-    if (phoneState == SHCallPhoneState_Calling) {
-        self.callModel.time = [NSDate date];
-    }
-
     //代理回调
     if ([self.delegate respondsToSelector:@selector(refreshCurrentCallStatus:)]) {
         [self.delegate refreshCurrentCallStatus:phoneState];
     }
-
-#ifdef Use_CallKit
-    
-    //呼出
-    if (phoneState == SHCallPhoneState_Out) {
-        
-        [self.provider reportOutgoingCallWithUUID:self.currentUUID startedConnectingAtDate:self.callModel.time];
-    }
-    
-    //待机
-    if (phoneState == SHCallPhoneState_None) {
-        
-        [self.provider reportOutgoingCallWithUUID:self.currentUUID connectedAtDate:[NSDate date]];
-    }
-    
-    if (phoneState == SHCallPhoneState_Out || phoneState == SHCallPhoneState_In){
-        //结束
-        [self stopCall];
-    }
-    
-#else
-    //原有逻辑
-
-#endif
-
 }
 
 #pragma mark - 初始化数据

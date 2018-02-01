@@ -21,5 +21,7 @@
 @property (nonatomic, copy) NSDate *time;
 //通话时长
 @property (nonatomic, copy) NSString *duration;
+//通话类型(呼出、呼入、未接等)
+@property (nonatomic, assign) NSInteger callType;
 
 @end

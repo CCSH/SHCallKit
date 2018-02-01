@@ -9,8 +9,8 @@
 /* Begin PBXBuildFile section */
 		5C0EF64D1FFDFD600066DA51 /* Ringtone.caf in Resources */ = {isa = PBXBuildFile; fileRef = 5C0EF64C1FFDFD5F0066DA51 /* Ringtone.caf */; };
 		5C0EF64F2003164B0066DA51 /* PushKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C0EF64E2003164B0066DA51 /* PushKit.framework */; };
-		5CC2649A200343F900905E2B /* SHCallManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 5CC26494200343F900905E2B /* SHCallManager.m */; };
-		5CC2649C200343F900905E2B /* SHCallModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 5CC26498200343F900905E2B /* SHCallModel.m */; };
+		5C28C4722022B4250015D678 /* SHCallManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 5C28C46F2022B4250015D678 /* SHCallManager.m */; };
+		5C28C4732022B4250015D678 /* SHCallModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 5C28C4702022B4250015D678 /* SHCallModel.m */; };
 		5CCD8BA21FFDC4E30046DC84 /* CallKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5CCD8BA11FFDC4E30046DC84 /* CallKit.framework */; };
 		5CEE833E1FFC645E00677934 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 5CEE833D1FFC645E00677934 /* AppDelegate.m */; };
 		5CEE83411FFC645E00677934 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5CEE83401FFC645E00677934 /* ViewController.m */; };
@@ -23,11 +23,11 @@
 /* Begin PBXFileReference section */
 		5C0EF64C1FFDFD5F0066DA51 /* Ringtone.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Ringtone.caf; sourceTree = "<group>"; };
 		5C0EF64E2003164B0066DA51 /* PushKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PushKit.framework; path = System/Library/Frameworks/PushKit.framework; sourceTree = SDKROOT; };
-		5CC26492200343F900905E2B /* SHCallKitHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SHCallKitHeader.h; sourceTree = "<group>"; };
-		5CC26493200343F900905E2B /* SHCallModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SHCallModel.h; sourceTree = "<group>"; };
-		5CC26494200343F900905E2B /* SHCallManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SHCallManager.m; sourceTree = "<group>"; };
-		5CC26498200343F900905E2B /* SHCallModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SHCallModel.m; sourceTree = "<group>"; };
-		5CC26499200343F900905E2B /* SHCallManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SHCallManager.h; sourceTree = "<group>"; };
+		5C28C46D2022B4250015D678 /* SHCallKitHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SHCallKitHeader.h; sourceTree = "<group>"; };
+		5C28C46E2022B4250015D678 /* SHCallModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SHCallModel.h; sourceTree = "<group>"; };
+		5C28C46F2022B4250015D678 /* SHCallManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SHCallManager.m; sourceTree = "<group>"; };
+		5C28C4702022B4250015D678 /* SHCallModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SHCallModel.m; sourceTree = "<group>"; };
+		5C28C4712022B4250015D678 /* SHCallManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SHCallManager.h; sourceTree = "<group>"; };
 		5CCD8BA11FFDC4E30046DC84 /* CallKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CallKit.framework; path = System/Library/Frameworks/CallKit.framework; sourceTree = SDKROOT; };
 		5CEE83391FFC645E00677934 /* SHCallKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SHCallKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5CEE833C1FFC645E00677934 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -54,23 +54,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		5CC26490200343F900905E2B /* CallKitManager */ = {
+		5C28C46B2022B4250015D678 /* CallKitManager */ = {
 			isa = PBXGroup;
 			children = (
-				5CC26491200343F900905E2B /* Header(头文件) */,
-				5CC26499200343F900905E2B /* SHCallManager.h */,
-				5CC26494200343F900905E2B /* SHCallManager.m */,
-				5CC26493200343F900905E2B /* SHCallModel.h */,
-				5CC26498200343F900905E2B /* SHCallModel.m */,
+				5C28C46C2022B4250015D678 /* Header(头文件) */,
+				5C28C46E2022B4250015D678 /* SHCallModel.h */,
+				5C28C46F2022B4250015D678 /* SHCallManager.m */,
+				5C28C4702022B4250015D678 /* SHCallModel.m */,
+				5C28C4712022B4250015D678 /* SHCallManager.h */,
 			);
-			name = CallKitManager;
-			path = ../../../../csh/Desktop/SHCallKit/SHCallKit/CallKitManager;
+			path = CallKitManager;
 			sourceTree = "<group>";
 		};
-		5CC26491200343F900905E2B /* Header(头文件) */ = {
+		5C28C46C2022B4250015D678 /* Header(头文件) */ = {
 			isa = PBXGroup;
 			children = (
-				5CC26492200343F900905E2B /* SHCallKitHeader.h */,
+				5C28C46D2022B4250015D678 /* SHCallKitHeader.h */,
 			);
 			path = "Header(头文件)";
 			sourceTree = "<group>";
@@ -104,7 +103,7 @@
 		5CEE833B1FFC645E00677934 /* SHCallKit */ = {
 			isa = PBXGroup;
 			children = (
-				5CC26490200343F900905E2B /* CallKitManager */,
+				5C28C46B2022B4250015D678 /* CallKitManager */,
 				5CEE833C1FFC645E00677934 /* AppDelegate.h */,
 				5CEE833D1FFC645E00677934 /* AppDelegate.m */,
 				5CEE833F1FFC645E00677934 /* ViewController.h */,
@@ -196,10 +195,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5CC2649A200343F900905E2B /* SHCallManager.m in Sources */,
+				5C28C4722022B4250015D678 /* SHCallManager.m in Sources */,
+				5C28C4732022B4250015D678 /* SHCallModel.m in Sources */,
 				5CEE83411FFC645E00677934 /* ViewController.m in Sources */,
 				5CEE834C1FFC645E00677934 /* main.m in Sources */,
-				5CC2649C200343F900905E2B /* SHCallModel.m in Sources */,
 				5CEE833E1FFC645E00677934 /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
