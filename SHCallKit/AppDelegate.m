@@ -12,6 +12,7 @@
 
 @interface AppDelegate ()<PKPushRegistryDelegate>
 
+//是否在前台
 @property (nonatomic, assign) BOOL inForeground;
 
 @end
@@ -22,16 +23,16 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     
-    //以下注册代码及详细证书配置可以在苹果PushKit官方文档中找到,在此不做赘述,详见:https://developer.apple.com/library/content/documentation/Performance/Conceptual/EnergyGuide-iOS/OptimizeVoIP.html#//apple_ref/doc/uid/TP40015243-CH30-SW1
-    dispatch_queue_t mainQueue = dispatch_get_main_queue();
-    PKPushRegistry *voipRegistry = [[PKPushRegistry alloc] initWithQueue: mainQueue];
+    //注册pushkit
+    PKPushRegistry *voipRegistry = [[PKPushRegistry alloc] initWithQueue:dispatch_get_main_queue()];
     voipRegistry.delegate = self;
     voipRegistry.desiredPushTypes = [NSSet setWithObject:PKPushTypeVoIP];
     
-    //初始化
+    //初始化callkit
     [SHCallManager shareSHCallManager];
     
-    self.inForeground = true;
+    //设置
+    self.inForeground = YES;
     
     return YES;
 }
@@ -39,14 +40,37 @@
 #pragma mark - PKPushRegistryDelegate
 - (void)pushRegistry:(PKPushRegistry *)registry didUpdatePushCredentials:(PKPushCredentials *)credentials forType:(PKPushType)type{
 
-    NSLog(@"credentialsToken=%@",credentials.token);
+    //截取tokenid
+    NSString *tokenString = [[[[credentials.token description]stringByReplacingOccurrencesOfString:@"<" withString: @""] stringByReplacingOccurrencesOfString:@">"withString:@""]stringByReplacingOccurrencesOfString:@" "withString:@""];
+
+    NSLog(@"credentialsToken === %@",tokenString);
+    //将tokenid上传到服务器
+    
+    
+}
+
+- (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(nonnull PKPushPayload *)payload forType:(nonnull PKPushType)type {
+
+    //内容
+    NSLog(@"%@",payload.dictionaryPayload);
+    
+    NSDictionary *dic = payload.dictionaryPayload[@"aps"];
+    NSString *alert = dic[@"alert"];
+    
+    //通过推送信息拿到电话号码
+    NSString *telnum = @"1234567890";
+    
+    if (telnum.length) {//号码存在则进行拨打电话
+        //进行拨打电话
+        [[SHCallManager shareSHCallManager] answerCallWithTelNum:telnum];
+    }
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
     
-    self.inForeground = false;
+    self.inForeground = NO;
 
     //start background task
     __block UIBackgroundTaskIdentifier background_task;
@@ -82,6 +106,7 @@
 
 - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void(^)(NSArray *restorableObjects))restorationHandler{
 
+    //通过外部唤起进行拨打电话
     [[SHCallManager shareSHCallManager] starCallWithUserActivity:userActivity];
     
     return YES;
@@ -89,7 +114,7 @@
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
     // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
-    self.inForeground = true;
+    self.inForeground = YES;
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {

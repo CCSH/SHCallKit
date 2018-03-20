@@ -43,19 +43,41 @@ typedef enum : NSUInteger {
 #pragma mark - 初始化
 + (SHCallManager *)shareSHCallManager;
 
-#pragma mark - 拨打方 呼出电话
+#pragma mark - 通过外部唤起进行拨打电话
 - (void)starCallWithUserActivity:(NSUserActivity *)userActivity;
 
-#pragma mark - 去电
-- (void)startCallWithTelNum:(NSString *)telNum isVideo:(BOOL)isVideo;
+#pragma mark - 拨打电话
+- (void)startCallWithTelNum:(NSString *)telNum;
 
-#pragma mark - 来电
-- (void)receiveCallWithTelNum:(NSString *)telNum;
+#pragma mark - 接听电话
+- (void)answerCallWithTelNum:(NSString *)telNum;
 
-#pragma mark - 挂电话
+#pragma mark - 挂断电话
 - (void)stopCall;
 
-#pragma mark - 接电话
-- (void)receiveCall;
+#pragma mark - 原有逻辑
+#pragma mark 拨打电话
+- (void)old_startCallWithTelNum:(NSString *)telNum;
+
+#pragma mark - 接听电话
+- (void)old_answerCallWithTelNum:(NSString *)telNum;
+
+#pragma mark - 挂断电话
+- (void)old_stopCall;
+
+#pragma mark 开启音频
+- (void)openAudio;
+
+#pragma mark 关闭音频
+- (void)closeAudio;
+
+#pragma mark 静音功能
+- (void)isMute:(BOOL)mute;
+
+#pragma mark 键盘点击
+- (void)clickKeyboardWithDigits:(NSString *)digits;
+
+#pragma mark - 发送本地通知(调试用)
++ (void)sendMessageWithMessage:(NSString *)message;
 
 @end

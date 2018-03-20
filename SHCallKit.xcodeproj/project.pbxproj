@@ -59,9 +59,9 @@
 			children = (
 				5C28C46C2022B4250015D678 /* Header(头文件) */,
 				5C28C46E2022B4250015D678 /* SHCallModel.h */,
-				5C28C46F2022B4250015D678 /* SHCallManager.m */,
 				5C28C4702022B4250015D678 /* SHCallModel.m */,
 				5C28C4712022B4250015D678 /* SHCallManager.h */,
+				5C28C46F2022B4250015D678 /* SHCallManager.m */,
 			);
 			path = CallKitManager;
 			sourceTree = "<group>";
@@ -334,11 +334,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 7HGMKW4KMG;
+				DEVELOPMENT_TEAM = UEL8KCF6LJ;
 				INFOPLIST_FILE = SHCallKit/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.xinwei.test;
+				PRODUCT_BUNDLE_IDENTIFIER = com.xinwei.csh;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -349,11 +349,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 7HGMKW4KMG;
+				DEVELOPMENT_TEAM = UEL8KCF6LJ;
 				INFOPLIST_FILE = SHCallKit/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.xinwei.test;
+				PRODUCT_BUNDLE_IDENTIFIER = com.xinwei.csh;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

@@ -26,6 +26,7 @@
 
 @implementation SHCallManager
 
+#pragma mark - 单例
 + (SHCallManager *)shareSHCallManager{
     
     static SHCallManager *callManager = nil;
@@ -39,7 +40,7 @@
     return callManager;
 }
 
-#pragma mark - 配置参数
+#pragma mark 配置参数
 - (void)setup{
     
     //配置其他信息
@@ -47,25 +48,52 @@
     [self callController];
 }
 
-#pragma mark - 去电
-- (void)startCallWithTelNum:(NSString *)telNum isVideo:(BOOL)isVideo{
+#pragma mark - 公共方法
+#pragma mark 外部唤起进行拨打电话
+- (void)starCallWithUserActivity:(NSUserActivity *)userActivity{
     
-    self.isCalling = YES;
+#ifdef Use_CallKit
+    INInteraction *interaction = userActivity.interaction;
+    INIntent *intent = interaction.intent;
+    
+    if ([userActivity.activityType isEqualToString:@"INStartAudioCallIntent"]){//语音通话
+        
+        INPerson *person = [(INStartAudioCallIntent *)intent contacts][0];
+        [self startCallWithTelNum:person.personHandle.value];
+        
+    } else if([userActivity.activityType isEqualToString:@"INStartVideoCallIntent"]) {//视频通话
+        
+        INPerson *person = [(INStartVideoCallIntent *)intent contacts][0];
+        [self startCallWithTelNum:person.personHandle.value];
+    }
+#else
+    //原有逻辑、外部唤起app拨打电话
+    
+#endif
+}
+
+#pragma mark 拨打电话
+- (void)startCallWithTelNum:(NSString *)telNum{
+    
+    //号码存在判断
+    if (!telNum.length) {
+        return;
+    }
+    
+    self.currentUUID = [NSUUID UUID];
+    
     //初始化模型
     self.callModel = [[SHCallModel alloc]init];
     self.callModel.telNum = telNum;
     self.callModel.userName = telNum;
     self.callModel.time = [NSDate date];
-    
-    self.currentUUID = [NSUUID UUID];
 
 #ifdef Use_CallKit
-    
     [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
     
     CXHandle *handle = [[CXHandle alloc] initWithType:CXHandleTypePhoneNumber value:telNum];
     CXStartCallAction *action = [[CXStartCallAction alloc]initWithCallUUID:self.currentUUID handle:handle];
-    action.video = isVideo;
+    action.video = NO;
     
     CXTransaction *transaction = [[CXTransaction alloc]init];
     [transaction addAction:action];
@@ -74,12 +102,25 @@
     [self requestTransaction:transaction];
 #else
     //原有逻辑、去电
+    [self old_startCallWithTelNum:self.callModel.telNum];
 
 #endif
 }
 
-#pragma mark - 来电通知
-- (void)receiveCallWithTelNum:(NSString *)telNum{
+#pragma mark 接听电话
+- (void)answerCallWithTelNum:(NSString *)telNum{
+    
+    //号码存在判断
+    if (!telNum.length) {
+        return;
+    }
+    
+    self.currentUUID = [NSUUID UUID];
+    //初始化模型
+    self.callModel = [[SHCallModel alloc]init];
+    self.callModel.telNum = telNum;
+    self.callModel.userName = telNum;
+    self.callModel.time = [NSDate date];
 
 #ifdef Use_CallKit
     [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
@@ -89,7 +130,7 @@
     callUpdate.remoteHandle = handle;
     callUpdate.localizedCallerName = telNum;
     //是否支持键盘拨号
-    callUpdate.supportsDTMF = NO;
+    callUpdate.supportsDTMF = YES;
     //通话过程中再来电，是否支持保留并接听
     callUpdate.supportsHolding = NO;
     //本次通话是否有视频
@@ -97,13 +138,9 @@
     //是否支持多人
     callUpdate.supportsGrouping = NO;
     
-    WeakSelf;
     [self.provider reportNewIncomingCallWithUUID:self.currentUUID update:callUpdate completion:^(NSError *error){
         
         if (!error){
-            
-            weakSelf.callModel = [[SHCallModel alloc]init];
-            weakSelf.callModel.telNum = telNum;
             
         }else{
             
@@ -116,7 +153,7 @@
 #endif
 }
 
-#pragma mark - 挂电话
+#pragma mark 挂断电话
 - (void)stopCall{
     
 #ifdef Use_CallKit
@@ -130,28 +167,40 @@
 #endif
 }
 
-#pragma mark - 接电话
-- (void)receiveCall{
+#pragma mark - 原有逻辑
+#pragma mark 拨打电话
+- (void)old_startCallWithTelNum:(NSString *)telNum{
     
-
 }
 
-#pragma mark - 外部唤起进行拨打电话
-- (void)starCallWithUserActivity:(NSUserActivity *)userActivity{
+#pragma mark - 接听电话
+- (void)old_answerCallWithTelNum:(NSString *)telNum{
     
-    INInteraction *interaction = userActivity.interaction;
-    INIntent *intent = interaction.intent;
+}
+
+#pragma mark - 挂断电话
+- (void)old_stopCall{
     
-    if ([userActivity.activityType isEqualToString:@"INStartAudioCallIntent"]){
-        
-        INPerson *person = [(INStartAudioCallIntent *)intent contacts][0];
-        [self startCallWithTelNum:person.personHandle.value isVideo:NO];
-        
-    } else if([userActivity.activityType isEqualToString:@"INStartVideoCallIntent"]) {
-        
-        INPerson *person = [(INStartVideoCallIntent *)intent contacts][0];
-        [self startCallWithTelNum:person.personHandle.value isVideo:YES];
-    }
+}
+
+#pragma mark 开启音频
+- (void)openAudio{
+    
+}
+
+#pragma mark 关闭音频
+- (void)closeAudio{
+    
+}
+
+#pragma mark 静音功能
+- (void)isMute:(BOOL)mute{
+    
+}
+
+#pragma mark 键盘点击
+- (void)clickKeyboardWithDigits:(NSString *)digits{
+    
 }
 
 #pragma mark - mainPrivate
@@ -181,54 +230,58 @@
     NSLog(@"CK: 创建成功");
 }
 
-#pragma mark 返回true 不执行系统通话界面 直接End
+#pragma mark 返回YES 不执行系统操作 直接结束
 - (BOOL)provider:(CXProvider *)provider executeTransaction:(CXTransaction *)transaction {
     NSLog(@"CK: 操作成功");
     return NO;
 }
 
-#pragma mark 当拨打方成功发起一个通话后，会触发
+#pragma mark 拨打电话
 - (void)provider:(CXProvider *)provider performStartCallAction:(CXStartCallAction *)action {
     NSLog(@"CK: 拨打电话");
     
     NSUUID *currentID = self.currentUUID;
     
     if ([[action.callUUID UUIDString] isEqualToString:[currentID UUIDString]]) {
-        
-        //原有逻辑、去电
-        
+        //原有逻辑、拨打电话
+        [self old_startCallWithTelNum:self.callModel.telNum];
         [action fulfill];
+        
     } else {
         [action fail];
     }
 }
 
-#pragma mark 当接听方成功接听一个电话时，会触发
+#pragma mark 接听电话
 - (void)provider:(CXProvider *)provider performAnswerCallAction:(CXAnswerCallAction *)action {
     NSLog(@"CK: 接听电话");
     
-    //接听电话
-    [self receiveCall];
+    //原有逻辑、接听电话
+    [self old_answerCallWithTelNum:self.callModel.telNum];
     [action fulfill];
 }
 
-#pragma mark 当接听方拒接电话或者双方结束通话时，会触发
+#pragma mark 结束通话
 - (void)provider:(CXProvider *)provider performEndCallAction:(CXEndCallAction *)action {
     NSLog(@"CK: 结束通话");
     
     NSUUID *currentID = self.currentUUID;
     if ([[action.callUUID UUIDString] isEqualToString:[currentID UUIDString]]) {
-        //挂电话
-        [self stopCall];
+        
+        //原有逻辑、挂断电话
+        [self old_stopCall];
         [action fulfill];
+        
     } else {
         [action fail];
     }
 }
 
-#pragma mark 当点击系统通话界面的Mute按钮时，会触发
+#pragma mark 通话静音
 - (void)provider:(CXProvider *)provider performSetMutedCallAction:(CXSetMutedCallAction *)action {
     NSLog(@"CK: %@",(action.muted)?@"通话静音":@"通话取消静音");
+    //原有逻辑、通话静音
+    [self isMute:(action.muted)];
     [action fulfill];
 }
 
@@ -238,9 +291,11 @@
     [action fulfill];
 }
 
-#pragma mark 双音频功能
+#pragma mark 双音频功能(通话中键盘点击)
 - (void)provider:(CXProvider *)provider performPlayDTMFCallAction:(CXPlayDTMFCallAction *)action {
-    NSLog(@"CK: 双音频功能");
+    NSLog(@"CK: 双音频功能 --- %@",action.digits);
+    //原有逻辑、键盘点击
+    [self clickKeyboardWithDigits:action.digits];
     [action fulfill];
 }
 
@@ -249,7 +304,6 @@
     NSLog(@"CK: %@",(action.onHold)?@"通话保留":(@"恢复通话"));
     
     [action fulfill];
-    
 }
 
 #pragma mark 连接超时
@@ -260,11 +314,15 @@
 #pragma mark audio session 设置
 - (void)provider:(CXProvider *)provider didActivateAudioSession:(AVAudioSession *)audioSession {
     NSLog(@"CK: 音频开始");
+    //开启音频
+    [self openAudio];
 }
 
 #pragma mark 通话结束音频处理
 - (void)provider:(CXProvider *)provider didDeactivateAudioSession:(AVAudioSession *)audioSession {
     NSLog(@"CK: 音频结束");
+    //关闭音频
+    [self closeAudio];
 }
 
 #pragma mark - CXCallObserverDelegate
@@ -287,7 +345,6 @@
             if (call.isOnHold) {
                 NSLog(@"保留通话");
             }
-            
         }
     }
 }
@@ -315,7 +372,7 @@
         //来电铃声
         config.ringtoneSound = @"Ringtone.caf";
         //是否支持视频
-        config.supportsVideo = YES;
+        config.supportsVideo = NO;
         //最大通话组
         config.maximumCallsPerCallGroup = 1;
         config.maximumCallGroups = 1;
@@ -338,7 +395,7 @@
     return _formatter;
 }
 
-#pragma mark - Set
+#pragma mark - SET
 - (void)setPhoneState:(SHCallPhoneState)phoneState{
     
     if (_phoneState == phoneState) {
@@ -346,7 +403,6 @@
     }
     
     //在这里配置根据状态需要的操作
-    
     _phoneState = phoneState;
     
     //代理回调
@@ -356,11 +412,26 @@
 }
 
 #pragma mark - 初始化数据
-- (void)reloadData{
+- (void)clearData{
 
     if (self.currentUUID) {
         self.currentUUID = nil;
     }
+    
+    self.callModel = nil;
+}
+
+#pragma mark - 发送本地通知
++ (void)sendMessageWithMessage:(NSString *)message{
+    
+    // 1.创建一个本地通知
+    UILocalNotification *localNote = [[UILocalNotification alloc] init];
+    
+    // 2.设置通知内容
+    localNote.alertBody = message;
+
+    // 3.执行通知
+    [[UIApplication sharedApplication] scheduleLocalNotification:localNote];
 }
 
 @end
